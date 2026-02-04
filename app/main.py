@@ -1,8 +1,23 @@
 from fastapi import FastAPI
+import json
+import os
 
 app = FastAPI()
 
-tarefas = []
+ARQUIVO = "tarefas.json"
+
+def carregar_tarefas():
+    if os.path.exists(ARQUIVO):
+        with open(ARQUIVO, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+def salvar_tarefas(tarefas):
+    with open(ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(tarefas, f, ensure_ascii=False, indent=2)
+
+
+tarefas = carregar_tarefas()
 
 @app.get("/")
 def home():
@@ -14,12 +29,14 @@ def listar_tarefas():
 
 @app.post("/tarefas")
 def criar_tarefa(titulo: str):
-    tarefa = {
+    nova_tarefa = {
         "id": len(tarefas) + 1,
         "titulo": titulo
     }
-    tarefas.append(tarefa)
-    return tarefa
+    tarefas.append(nova_tarefa)
+    salvar_tarefas(tarefas)
+    return nova_tarefa
+
 
 @app.delete("/tarefas/{tarefa_id}")
 def deletar_tarefa(tarefa_id: int):
@@ -28,3 +45,12 @@ def deletar_tarefa(tarefa_id: int):
             tarefas.remove(tarefa)
             return {"mensagem": "Tarefa removida com sucesso"}
     return {"erro": "Tarefa não encontrada"}
+
+@app.put("/tarefas/{tarefa_id}")
+def atualizar_tarefa(tarefa_id: int, titulo: str):
+    for tarefa in tarefas:
+        if tarefa["id"] == tarefa_id:
+            tarefa["titulo"] = titulo
+            return tarefa
+    return {"erro": "Tarefa não encontrada"}
+

@@ -17,3 +17,7 @@ Projeto simples de uma API REST para gerenciamento de tarefas, desenvolvido para
 ```bash
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+
+## ✅ Status do projeto
+Projeto funcional, com operações básicas de CRUD em memória.
+
